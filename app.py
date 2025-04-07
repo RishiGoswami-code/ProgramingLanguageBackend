@@ -1,40 +1,31 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 import pandas as pd
 
 app = Flask(__name__)
+CORS(app) 
 
-data_file = "filtered_stackoverflow_2015_2025_clean.csv"
-df = pd.read_csv(data_file)
-df["Date"] = pd.to_datetime(df["Date"])
-df["Year"] = df["Date"].dt.year
+df = pd.read_csv("merged_stackoverflow.csv")
 
-@app.route("/")
+@app.route('/')
 def home():
-    return {
-        "message": "🔥 Welcome to StackOverflow JSON API!",
-        "endpoints": {
-            "/questions": "Get all data",
-            "/questions?year=2023": "Filter by year",
-            "/questions?language=python": "Filter by language",
-            "/questions?year=2023&language=python": "Both filters"
-        }
-    }
+    return jsonify({"message": "Welcome to StackOverflow JSON API!"})
 
-@app.route("/questions", methods=["GET"])
-def get_questions():
-    year = request.args.get("year", type=int)
-    language = request.args.get("language", type=str)
+@app.route('/data', methods=['GET'])
+def get_data():
+    year = request.args.get('year')
+    language = request.args.get('language')
 
-    filtered = df
+    filtered_df = df.copy()
 
     if year:
-        filtered = filtered[filtered["Year"] == year]
+        filtered_df = filtered_df[filtered_df['Date'].str.startswith(year)]
 
     if language:
-        filtered = filtered[filtered["Language"].str.lower() == language.lower()]
+        filtered_df = filtered_df[filtered_df['Language'].str.lower() == language.lower()]
 
-    result = filtered[["Question ID", "Language", "Date"]].to_dict(orient="records")
+    result = filtered_df.to_dict(orient='records')
     return jsonify(result)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)
