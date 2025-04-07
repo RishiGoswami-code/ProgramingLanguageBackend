@@ -3,7 +3,6 @@ import pandas as pd
 
 app = Flask(__name__)
 
-# Load the data once when the server starts
 data_file = "filtered_stackoverflow_2015_2025_clean.csv"
 df = pd.read_csv(data_file)
 df["Date"] = pd.to_datetime(df["Date"])
