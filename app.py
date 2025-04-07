@@ -11,13 +11,10 @@ df = pd.read_csv("merged_stackoverflow.csv")
 def home():
     return jsonify({"message": "Welcome to StackOverflow JSON API!"})
     
-@app.route('/trend', methods=['GET'])
-def get_trend_data():
-    grouped = df.copy()
-    grouped['Year'] = pd.to_datetime(grouped['Date']).dt.year
-    trend = grouped.groupby(['Year', 'Language']).size().reset_index(name='Count')
-    trend = trend.to_dict(orient='records')
-    return jsonify(trend)
+@app.route('/languages', methods=['GET'])
+def get_languages():
+    unique_languages = df['Language'].dropna().unique()
+    return jsonify(sorted(unique_languages))
 
 @app.route('/data', methods=['GET'])
 def get_data():
