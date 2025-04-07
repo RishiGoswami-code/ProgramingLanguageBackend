@@ -27,5 +27,13 @@ def get_data():
     result = filtered_df.to_dict(orient='records')
     return jsonify(result)
 
+@app.route('/trend', methods=['GET'])
+def get_trend():
+    df['Year'] = pd.to_datetime(df['Date']).dt.year
+    trend_data = df.groupby(['Year', 'Language']).size().reset_index(name='Count')
+    
+    result = trend_data.to_dict(orient='records')
+    return jsonify(result)
+
 if __name__ == '__main__':
     app.run(debug=True)
